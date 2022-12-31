@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      src="https://kit.fontawesome.com/c3105ca38a.js"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      body {
+        margin: 0;
+        min-width: 250px;
+      }
+
+      /* Include the padding and border in an element's total width and height */
+      * {
+        box-sizing: border-box;
+      }
+
+      /* Remove margins and padding from the list */
+      ul {
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Style the list items */
+      ul li {
+        cursor: pointer;
+        position: relative;
+        padding: 12px 8px 12px 40px;
+        list-style-type: none;
+        background: #eee;
+        font-size: 18px;
+        transition: 0.2s;
+
+        /* make the list items unselectable */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      /* Set all odd list items to a different color (zebra-stripes) */
+      ul li:nth-child(odd) {
+        background: #f9f9f9;
+      }
+
+      /* Darker background-color on hover */
+      ul li:hover {
+        background: #ddd;
+      }
+
+      /* When clicked on, add a background color and strike out text */
+      ul li.checked {
+        background: #888;
+        color: #fff;
+        text-decoration: line-through;
+      }
+
+      /* Add a "checked" mark when clicked on */
+      ul li.checked::before {
+        content: "";
+        position: absolute;
+        border-color: #fff;
+        border-style: solid;
+        border-width: 0 2px 2px 0;
+        top: 10px;
+        left: 16px;
+        transform: rotate(45deg);
+        height: 15px;
+        width: 7px;
+      }
+
+      /* Style the close button */
+      .close {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 12px 16px 12px 16px;
+      }
+
+      .close:hover {
+        background-color: #f44336;
+        color: white;
+      }
+
+      /* Style the header */
+      .header {
+        background-color: #3652f4;
+        padding: 30px 40px;
+        color: white;
+        text-align: center;
+      }
+
+      /* Clear floats after the header */
+      .header:after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      /* Style the input */
+      input {
+        margin: 0;
+        border: none;
+        border-radius: 50px;
+        width: 75%;
+        padding: 10px;
+        float: left;
+        font-size: 16px;
+      }
+
+      /* Style the "Add" button */
+      .addBtn {
+        padding: 10px;
+        width: 25%;
+        background: #d9d9d9;
+        color: #555;
+        float: left;
+        text-align: center;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        border-radius: 50px;
+      }
+
+      .addBtn:hover {
+        background-color: #bbb;
+      }
+      .resetBtn {
+        padding: 10px;
+        width: 25%;
+        background: #d9d9d9;
+        color: rgb(199, 14, 14);
+        float: left;
+        text-align: center;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        border-radius: 0;
+      }
+      .filter {
+        width: 25%;
+        border: #555;
+        border-radius: 50px;
+        margin-top: 40px;
+      }
+      .updateBtn{
+        color: green;
+      }
+      .deleteBtn{
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="myDIV" class="header">
+      <h2 style="margin: 5px">Welcome to my Todo list</h2>
+      <input type="text" id="myInput" placeholder="Title..." />
+      <span onclick="addElement()" class="addBtn">Add</span>
+      <input type="text" placeholder="filter here" class="filter" />
+    </div>
+
+    <ul id="myUL"></ul>
+    <script>
+      var todoList = [];
+      let listId = -1;
+
+      let ul = document.querySelector("ul");
+      /* todoList.forEach(appendLi);  */
+      var data_global = false;
+      const filterInput = document.querySelector(".filter");
+      function appendLi(data, index) {
+        const li = document.createElement("li");
+        li.addEventListener("click", (e)=>{
+           
+           checkedData(data, index, e)
+        })
+        ;
+        //const li = document.createElement("li");
+        // li.innerHTML = data.task/* 
+         /*if (data.completed) li.classList.add("checked") */
+        const add = document.createTextNode(data.task);
+        let buttons = btnData(index);
+        debugger
+        li.appendChild(add);
+        li.appendChild(buttons.btn);
+        li.appendChild(buttons.btn2);
+        
+        ul.appendChild(li);
+      }
+      function btnData(index) {
+        const btn = document.createElement("button");
+        btn.className = "deleteBtn fa-solid fa-trash";
+        btn.type = "submit";
+        /* btn.innerHTML = "x"; */
+        const btn2 = document.createElement("button");
+        btn2.className = "updateBtn fa-regular fa-pen-to-square";
+        btn2.type = "submit";
+
+        btn2.addEventListener("click", () => {
+          ;
+          console.log(index);
+          updateBtn(index);
+        });
+
+        btn.addEventListener("click", () => {
+          ;
+          console.log(index);
+          deleteBtn(index);
+        });
+
+        return {
+          btn,
+          btn2,
+        };
+        /* btn2.innerHTML = "Update" */
+      }
+      
+
+   /*    filterInput.addEventListener("input", (e) => {
+        
+        ul.innerHTML = "";
+        if (e.target.value.trim().length) {
+          
+          todoList
+            .filter((data) =>
+              data.task
+                .trim()
+                .toLowerCase()
+                .includes(e.target.value.trim().toLowerCase())
+            )
+            .forEach(appendLi);
+        } else {
+          todoList.forEach(appendLi);
+        }
+      }); */
+      let data_old = JSON.parse(localStorage.getItem("storeData2"));
+
+      const addInput = document.querySelector("#myInput");
+      function addElement() {
+        const addButton = document.querySelector("#addBtn");
+
+        const data = { task: addInput.value, completed: false };
+        if (addInput.value.trim() === "") {
+          alert("Please enter some value into input filled");
+          return
+        }
+       
+        if (data_global) {
+          ;
+          let data = btnData(listId);
+
+          const listElement = document.querySelector(
+            `#myUL li:nth-of-type(${listId + 1})`
+          );
+
+          listElement.innerHTML = addInput.value;
+
+          listElement.appendChild(data.btn);
+          listElement.appendChild(data.btn2);
+
+          todoList[listId].task = addInput.value;
+
+          ;
+          data_global = false;
+        } else {
+          /* if(data.completed !== false)  */
+          /*   let arrayData = [] */
+          if (data_old !== null) todoList = data_old;
+          todoList.push(data);
+          console.log("data", data);
+          /* arrayData.push(todoList) */
+          ;
+          appendLi(data, todoList.length - 1);
+        }
+
+        localStorage.setItem("storeData2", JSON.stringify(todoList));
+        document.querySelector("#myInput").value = "";
+      }
+
+      window.addEventListener("load", function () {
+        ;
+        let data = JSON.parse(localStorage.getItem("storeData2"));
+        console.log(data);
+        if (data !== null) data.forEach(appendLi);
+      });
+
+      function deleteBtn(indexData) {
+        ;
+        if (data_old !== null) {
+          todoList = data_old;
+          let data = todoList.splice(indexData, 1);
+          /* todoList.filter((data, index)=> index !== indexData ) */
+          localStorage.setItem("storeData2", JSON.stringify(todoList));
+          appendLi(todoList, todoList.length - 1);
+
+          ;
+          ul.innerHTML = "";
+          /* let data =  todoList.splice(indexData, 1); */
+          todoList.forEach(appendLi);
+          todoList.appendChild(data);
+        }
+      }
+
+      function updateBtn(indexUpdate) {
+        listId = indexUpdate;
+        data_global = true;
+        ;
+        console.log(indexUpdate);
+        if (data_old !== null) todoList = data_old;
+        ;
+        document.querySelector("#myInput").value = todoList[indexUpdate].task;
+        document.querySelector(".addBtn").innerHTML = "Update"
+        let array = JSON.parse(localStorage.getItem("storeData2"));
+        debugger
+        array[indexUpdate].task = document.querySelector("#myInput").value;
+        localStorage.setItem("storeData2", JSON.parse(array));
+        
+        /*   array.filter((arr) => {
+          if (arr.task !== todoList[indexUpdate].task) {
+            return (arr.task = todoList[indexUpdate].task);
+          }
+        });
+        localStorage.setItem("storeData2", JSON.stringify(array)); */
+
+        // let data = todoList.filter((data, i) => {
+        //    if(i == indexUpdate && addInput.value !== data) {
+        //     addInput.value = data
+        //     // document.querySelector("#myInput").value = JSON.stringify(data.task).split('"').join('')
+
+        //    }
+        // } )
+        // ul.innerHTML = ''
+        //   todoList.forEach(appendLi)
+        //  todoList.appendChild(data)
+      }
+
+      //for submit after clcik on input filled
+      addInput.addEventListener("keyup",(e) => e.key == "Enter" && addElement());
+      
+       function checkedData(dataa, indexChecked, e){
+        
+        let localData = JSON.parse(localStorage.getItem('storeData2'))
+        if(localData[indexChecked].completed == false){
+          e.target.classList.add('checked')
+          localData[indexChecked].completed = true
+          localStorage.setItem('storeData2', JSON.stringify(localData))
+       }
+       else{
+           e.target.classList.remove('checked')
+           localData[indexChecked].completed = false
+           localStorage.setItem('storeData2', JSON.stringify(localData))
+       }
+      }
+
+      filterInput.addEventListener("input", (e)=>{
+          
+         let inputSearch = e.target.value
+         let localData = JSON.parse(localStorage.getItem('storeData2'))
+         
+         console.log(localData)
+          /*  if(inputSearch.trim().toLowerCase() !== localData.task){
+            document.querySelector('body').innerHTML = "Data not found"
+           } */
+          if(inputSearch.trim().length){
+            ul.innerHTML = ''
+            let filterData = localData
+            .filter((data, index) => data.task.trim().toLowerCase().includes(e.target.value.trim().toLowerCase())
+            )
+            filterData.forEach(appendLi)
+            /* .forEach(appendLi); */
+            debugger
+            if(!filterData.length){
+              let h1 = document.createElement("h1");
+              h1.className = "h1Tag"
+              h1.innerText = "Data not found"
+              h1.style.alignItems = "center"
+              /* h1.style.marginRight = "23px" */
+              document.querySelector("#myUL").appendChild(h1)
+            }
+          }
+          else{
+            
+            ul.innerHTML = '';
+            localData.forEach(appendLi);
+          }
+         console.log(inputSearch)
+        })
+    </script>
+  </body>
+</html>
